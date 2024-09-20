@@ -1,0 +1,111 @@
+import cv2
+import numpy as np
+import pytesseract
+import re
+import csv
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+
+# 1. Preprocess the Image
+def preprocess_image(image_path):
+    # Load the image
+    image = cv2.imread(image_path)
+    
+    # Convert to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply adaptive thresholding to binarize the image
+    thresh = cv2.adaptiveThreshold(
+        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    
+    # Apply noise removal with morphological transformations
+    kernel = np.ones((1, 1), np.uint8)
+    img_denoised = cv2.dilate(thresh, kernel, iterations=1)
+    img_denoised = cv2.erode(img_denoised, kernel, iterations=1)
+    
+    # Save the preprocessed image for further OCR
+    preprocessed_image_path = 'preprocessed_image.jpg'
+    cv2.imwrite(preprocessed_image_path, img_denoised)
+    
+    return preprocessed_image_path
+
+# 2. Extract Text using OCR (Tesseract)
+def extract_text_from_image(image_path):
+    # Use Tesseract OCR to extract text
+    text = pytesseract.image_to_string(image_path)
+    return text
+
+# 3. Define TableNet Model
+def create_tablenet_model():
+    model = Sequential()
+    
+    # Convolution layers
+    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(256, 256, 3)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    model.add(Conv2D(128, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    # Flatten and dense layers
+    model.add(Flatten())
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(2, activation='softmax'))  # 2 classes (table or no table)
+    
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
+
+# Load TableNet Model (pre-trained weights)
+tablenet_model = create_tablenet_model()
+# Uncomment this line if you have pre-trained weights
+# tablenet_model.load_weights('tablenet_weights.h5')
+
+# 4. Post-Process the Extracted Text to CSV
+def post_process_text_to_csv(extracted_text, csv_file_path):
+    # Split the text into lines
+    lines = extracted_text.split('\n')
+    
+    # Prepare to write to CSV
+    with open(csv_file_path, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        
+        # Define column headers (example based on your table structure)
+        writer.writerow(["Sl.No", "Class Group", "Course", "LT P J C", "Category", 
+                         "Course Option", "Class Id", "Slot/Venue", 
+                         "Faculty Details", "Registered / Updated Date & Time", 
+                         "Attendance Date/Type", "Status & Ref. No."])
+        
+        # Iterate through the lines and extract data based on patterns
+        for line in lines:
+            # Use regex to identify relevant fields like Sl.No, Course, Faculty, etc.
+            sl_no_match = re.search(r'^\d+', line)
+            if sl_no_match:
+                # Extract relevant fields (this is simplified, and you can expand the logic)
+                sl_no = sl_no_match.group(0)
+                # Extract other details, this is just an example
+                # Split line based on known patterns (expand as needed)
+                fields = re.split(r'\s{2,}', line)
+                if len(fields) >= 6:  # Check if line contains expected number of fields
+                    writer.writerow(fields)
+
+# 5. Complete Image-to-CSV Pipeline
+def image_to_csv_pipeline(image_path, csv_output_path):
+    # Step 1: Preprocess the image
+    preprocessed_image = preprocess_image(image_path)
+    
+    # Step 2: Extract text using OCR
+    extracted_text = extract_text_from_image(preprocessed_image)
+    
+    # Step 3: Post-process the text and write to CSV
+    post_process_text_to_csv(extracted_text, csv_output_path)
+
+# Example Usage
+image_path = 'TT1.jpg'  # Path to your image
+csv_output_path = 'final_output.csv'  # Path where the CSV will be saved
+
+# Run the pipeline
+image_to_csv_pipeline(image_path, csv_output_path)
+
+print(f"CSV file generated and saved at: {csv_output_path}")
