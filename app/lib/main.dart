@@ -1,125 +1,144 @@
-import 'package:flutter/material.dart';
+import 'dart:io'; 
+import 'package:flutter/material.dart'; 
+import 'package:csv/csv.dart'; 
+import 'package:path_provider/path_provider.dart'; // Import path_provider
+import 'package:path/path.dart' as p;
 
 void main() {
-  runApp(const MyApp());
+  runApp(CalendarApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CalendarApp extends StatelessWidget {
+  const CalendarApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Productivity Calendar',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: ProductivityScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class ProductivityScreen extends StatefulWidget {
+  const ProductivityScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _ProductivityScreenState createState() => _ProductivityScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _ProductivityScreenState extends State<ProductivityScreen> {
+  final List<String> _timeSlots = ["0-4", "4-8", "8-12", "12-16", "16-20", "20-24"];
+  final Map<String, TextEditingController> _controllers = {};
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controllers for each time slot
+    for (var slot in _timeSlots) {
+      _controllers[slot] = TextEditingController();
+    }
+  }
+
+  @override
+  void dispose() {
+    // Dispose controllers
+    _controllers.forEach((key, controller) {
+      controller.dispose();
     });
+    super.dispose();
+  }
+
+  Future<void> _saveToCSV() async {
+    List<List<dynamic>> rows = [
+      ["Time Slot", "Productivity (1-10)"]
+    ];
+
+    // Prepare data rows
+    _controllers.forEach((slot, controller) {
+      rows.add([slot, controller.text]);
+    });
+
+    // Convert rows to CSV
+    String csvData = const ListToCsvConverter().convert(rows);
+
+    // Get the platform-specific directory to save the file
+    final Directory directory = await getApplicationDocumentsDirectory();
+
+    // Create a 'data' folder in the app's documents directory
+    final String dataFolderPath = p.join(directory.path, 'data');
+    final Directory dataDir = Directory(dataFolderPath);
+    if (!await dataDir.exists()) {
+      await dataDir.create();
+    }
+
+    // Save the CSV file in the 'data' folder
+    final String filePath = p.join(dataFolderPath, 'productivity_data.csv');
+    final File file = File(filePath);
+
+    // Write to file
+    await file.writeAsString(csvData);
+
+    // Show confirmation in the app UI
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Data saved to CSV at $filePath')),
+    );
+
+    // Show the CSV contents in the terminal
+    print('--- CSV File Contents ---');
+    print(csvData);  // Print the CSV content
+    print('-------------------------');
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('Productivity Tracker'),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: _timeSlots.length,
+              itemBuilder: (context, index) {
+                String timeSlot = _timeSlots[index];
+                return Card(
+                  margin: const EdgeInsets.all(10.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Time Slot: $timeSlot',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: _controllers[timeSlot],
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Productivity (1-10)',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+          ),
+          ElevatedButton(
+            onPressed: _saveToCSV,
+            child: const Text('Save to CSV'),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

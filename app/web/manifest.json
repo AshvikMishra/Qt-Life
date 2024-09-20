@@ -1,6 +1,6 @@
 {
-    "name": "lifeos",
-    "short_name": "lifeos",
+    "name": "calendar_app",
+    "short_name": "calendar_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -1,4 +1,4 @@
-package com.example.lifeos
+package com.example.calendar_app
 
 import io.flutter.embedding.android.FlutterActivity
 
