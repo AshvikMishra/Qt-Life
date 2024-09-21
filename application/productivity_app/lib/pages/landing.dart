@@ -31,6 +31,7 @@ class _LandingPageState extends State<LandingPage> {
   double _firstCardOpacity = 0.0;
   double _secondCardOpacity = 0.0;
   double _thirdCardOpacity = 0.0;
+  double _fourthCardOpacity = 0.0;
 
   @override
   void initState() {
@@ -39,19 +40,24 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   Future<void> _animateCards() async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 500));
     setState(() {
-      _firstCardOpacity = 1.0; // Fade in first card
+      _firstCardOpacity = 1.0;
     });
 
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 500));
     setState(() {
-      _secondCardOpacity = 1.0; // Fade in second card
+      _secondCardOpacity = 1.0;
     });
 
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 500));
     setState(() {
-      _thirdCardOpacity = 1.0; // Fade in third card
+      _thirdCardOpacity = 1.0;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    setState(() {
+      _fourthCardOpacity = 1.0;
     });
   }
 
@@ -59,90 +65,135 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final height = constraints.maxHeight;
-        
-            return Column(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // First card - 20% of the screen
+                // First card: Clock icon and "Qt-Life" text
                 AnimatedOpacity(
                   opacity: _firstCardOpacity,
-                  duration: const Duration(milliseconds: 500),
-                  child: SizedBox(
-                    height: height * 0.2,
-                    width: double.infinity,
+                  duration: const Duration(milliseconds: 1000),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0), // 10px space between cards
                     child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
                       color: Colors.grey[900],
-                      child: Center(
-                        child: AnimatedTextKit(
-                          animatedTexts: [
-                            FadeAnimatedText('AI-powered Scheduling', textStyle: TextStyle(fontSize: 30, color: Colors.amber[200]), duration: const Duration(milliseconds: 2000)),
-                            FadeAnimatedText('Tailored to You', textStyle: TextStyle(fontSize: 30, color: Colors.amber[200]), duration: const Duration(milliseconds: 2000)),
-                            FadeAnimatedText('Get Organized!', textStyle: TextStyle(fontSize: 30, color: Colors.amber[200]), duration: const Duration(milliseconds: 2000)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        width: double.infinity,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.access_time, size: 80, color: Colors.amber[200]), // Clock icon
+                            const SizedBox(height: 10),
+                            Text(
+                              'Qt-Life',
+                              style: TextStyle(fontSize: 36, color: Colors.amber[200], fontWeight: FontWeight.bold),
+                            ),
                           ],
-                          repeatForever: true,
-                          pause: const Duration(milliseconds: 1000),
                         ),
                       ),
                     ),
                   ),
                 ),
-                // Second card - 50% of the screen
+
+                // Second card: Fading text (constant card size)
                 AnimatedOpacity(
                   opacity: _secondCardOpacity,
-                  duration: const Duration(milliseconds: 500),
-                  child: SizedBox(
-                    height: height * 0.5,
-                    width: double.infinity,
+                  duration: const Duration(milliseconds: 1000),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0), // 10px space between cards
                     child: Card(
-                      color: Colors.grey[800],
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 30, 5, 5),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Welcome to our Project!',
-                                style: TextStyle(fontSize: 22, color: Colors.yellow[200]),
-                              ),
-                              Divider(height: 10, color: Colors.grey[200],),
-                              const Text(
-                                "We're making a dynamic scheduling app based on machine learning that uses a reinforced learning pattern to understand the user's productive hours and suggest a schedule. Over time it would predict your naturally productive hours and help you schedule your time more effectively.",
-                                style: TextStyle(fontSize: 18, color: Colors.white70),
-                              ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      color: Colors.grey[900],
+                      child: Container(
+                        height: 150, // Constant height for the second card
+                        padding: const EdgeInsets.symmetric(vertical: 30),
+                        width: double.infinity,
+                        child: Center(
+                          child: AnimatedTextKit(
+                            animatedTexts: [
+                              FadeAnimatedText('AI-powered Scheduling', textStyle: TextStyle(fontSize: 30, color: Colors.amber[200]), duration: const Duration(milliseconds: 2000)),
+                              FadeAnimatedText('Tailored to You', textStyle: TextStyle(fontSize: 30, color: Colors.amber[200]), duration: const Duration(milliseconds: 2000)),
+                              FadeAnimatedText('Get Organized!', textStyle: TextStyle(fontSize: 30, color: Colors.amber[200]), duration: const Duration(milliseconds: 2000)),
                             ],
+                            repeatForever: true,
+                            pause: const Duration(milliseconds: 1000),
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
-                // Third card (Button) - 30% of the screen
+
+                // Third card: Description text
                 AnimatedOpacity(
                   opacity: _thirdCardOpacity,
-                  duration: const Duration(milliseconds: 500),
-                  child: SizedBox(
-                    height: height * 0.3,
-                    width: double.infinity,
+                  duration: const Duration(milliseconds: 1000),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0), // 10px space between cards
                     child: Card(
-                      color: Colors.grey[900],
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/productivity_app'); // Navigate to the productivity app screen
-                        },
-                        icon: Icon(Icons.touch_app, size: 40, color: Colors.amber[200]),
-                        label: Text(
-                          'Get Started',
-                          style: TextStyle(color: Colors.amber[200], fontSize: 24),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      color: Colors.grey[800],
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center, // Center the content horizontally
+                          children: [
+                            Text(
+                              'Welcome to our Project!',
+                              style: TextStyle(fontSize: 22, color: Colors.yellow[200]),
+                              textAlign: TextAlign.center, // Center the text within the widget
+                            ),
+                            const Divider(height: 20, color: Colors.grey),
+                            const Text(
+                              "We're building a dynamic scheduling app that uses machine learning to optimize your productive hours and suggest a tailored schedule.",
+                              style: TextStyle(fontSize: 18, color: Colors.white70),
+                              textAlign: TextAlign.center, // Center the text within the widget
+                            ),
+                          ],
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[900],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20), // Make the button fill the card
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Fourth card: Get Started button (same width as the other cards)
+                AnimatedOpacity(
+                  opacity: _fourthCardOpacity,
+                  duration: const Duration(milliseconds: 1000),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    color: Colors.grey[900],
+                    child: Container(
+                      width: double.infinity, // Make the card full-width like the others
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Center(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/productivity_app');
+                          },
+                          icon: Icon(Icons.check, size: 30, color: Colors.amber[200]),
+                          label: Text(
+                            'Get Started',
+                            style: TextStyle(color: Colors.amber[200], fontSize: 20),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[900],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
                           ),
                         ),
                       ),
@@ -150,8 +201,8 @@ class _LandingPageState extends State<LandingPage> {
                   ),
                 ),
               ],
-            );
-          },
+            ),
+          ),
         ),
       ),
     );

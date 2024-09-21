@@ -33,34 +33,24 @@ class ProductivityHomePage extends StatefulWidget {
 class _ProductivityHomePageState extends State<ProductivityHomePage> {
   int _currentDay = 1;
   final List<String> _timeSlots = ["0-4", "4-8", "8-12", "12-16", "16-20", "20-24"];
-  final Map<String, TextEditingController> _controllers = {};
+  final Map<String, int> _selectedValues = {};
 
   @override
   void initState() {
     super.initState();
-    // Initialize text controllers for each time slot
+
+    // Initialize selected values for each time slot to default to 0
     for (var slot in _timeSlots) {
-      _controllers[slot] = TextEditingController();
+      _selectedValues[slot] = 0;
     }
 
-    // Clear the CSV file when the app starts
     _clearCSVFile();
-  }
-
-  @override
-  void dispose() {
-    // Dispose controllers
-    _controllers.forEach((key, controller) {
-      controller.dispose();
-    });
-    super.dispose();
   }
 
   Future<void> _clearCSVFile() async {
     final String filePath = p.join('ProductivityData', 'productivity_data.csv');
     final File file = File(filePath);
 
-    // Check if the file exists and clear it
     if (await file.exists()) {
       await file.writeAsString('');
     }
@@ -72,40 +62,30 @@ class _ProductivityHomePageState extends State<ProductivityHomePage> {
     ];
 
     // Prepare data rows for the current day
-    _controllers.forEach((slot, controller) {
-      rows.add([_currentDay, slot, controller.text]);
+    _selectedValues.forEach((slot, value) {
+      rows.add([_currentDay, slot, value]);
     });
 
-    // Convert rows to CSV
     String csvData = const ListToCsvConverter().convert(rows);
 
-    // Set the absolute path for saving the CSV file
     final String filePath = p.join('ProductivityData', 'productivity_data.csv');
     final File file = File(filePath);
 
-    // Check if the file exists; if not, write the header and the first row
     if (!await file.exists()) {
       await file.writeAsString(csvData);
     } else {
-      // Append new data without the header
       String newData = const ListToCsvConverter().convert(rows.skip(1).toList());
       await file.writeAsString("\n$newData", mode: FileMode.append);
     }
 
-    // Show a confirmation message in the app
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Day $_currentDay data uploaded to CSV')),
     );
 
-    // Clear the text fields and increment the day
-    _controllers.forEach((slot, controller) {
-      controller.clear();
-    });
     setState(() {
       _currentDay++;
     });
 
-    // Print the CSV file contents in the terminal for debugging purposes
     print('--- CSV File Contents ---');
     print(await file.readAsString());
     print('-------------------------');
@@ -126,7 +106,7 @@ class _ProductivityHomePageState extends State<ProductivityHomePage> {
                 Navigator.of(context).pushNamed('/landing');
               },
               tooltip: 'Back',
-              iconSize: 30, // Make the icon bigger if needed
+              iconSize: 30, 
             ),
           ),
         ],
@@ -142,7 +122,7 @@ class _ProductivityHomePageState extends State<ProductivityHomePage> {
                   color: Colors.grey[900],
                   margin: const EdgeInsets.all(5.0),
                   child: Padding(
-                    padding: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0), // Add 20px padding
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -151,22 +131,23 @@ class _ProductivityHomePageState extends State<ProductivityHomePage> {
                           style: TextStyle(fontSize: 18, color: Colors.amber[200]),
                         ),
                         const SizedBox(height: 10),
-                        TextField(
-                          controller: _controllers[timeSlot],
-                          keyboardType: TextInputType.number,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.all(10),
-                            labelText: 'Productivity (0-10)',
-                            labelStyle: TextStyle(fontSize: 14, color: Colors.white),
-                            border: OutlineInputBorder(),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
+                        DropdownButton<int>(
+                          value: _selectedValues[timeSlot],
+                          items: List.generate(
+                            11, // Values 0-10
+                            (value) => DropdownMenuItem<int>(
+                              value: value,
+                              child: Text(value.toString(), style: const TextStyle(color: Colors.white)),
                             ),
                           ),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedValues[timeSlot] = value!;
+                            });
+                          },
+                          dropdownColor: Colors.grey[800],
+                          style: const TextStyle(color: Colors.white),
+                          isExpanded: true, // Make it take the full width
                         ),
                       ],
                     ),
