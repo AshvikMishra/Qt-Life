@@ -4,7 +4,7 @@ import 'package:csv/csv.dart';
 import 'package:path/path.dart' as p;
 
 void main() {
-  runApp(const ProductivityApp());
+  runApp(ProductivityApp());
 }
 
 class ProductivityApp extends StatelessWidget {
@@ -18,7 +18,7 @@ class ProductivityApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.grey[850],
       ),
-      home: const ProductivityHomePage(),
+      home: ProductivityHomePage(),
     );
   }
 }
@@ -67,7 +67,7 @@ class _ProductivityHomePageState extends State<ProductivityHomePage> {
     String csvData = const ListToCsvConverter().convert(rows);
 
     // Set the absolute path for saving the CSV file
-    final String filePath = p.join('C:\\Devjams24\\Vit-Life\\MLModels', 'productivity_data.csv');
+    final String filePath = p.join('ProductivityData', 'productivity_data.csv');
     final File file = File(filePath);
 
     // Check if the file exists; if not, write the header and the first row
