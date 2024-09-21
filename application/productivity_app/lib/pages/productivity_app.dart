@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
 import 'package:path/path.dart' as p;
+import 'package:productivity_app/pages/landing.dart';
 
 class ProductivityApp extends StatelessWidget {
   const ProductivityApp({super.key});
@@ -15,6 +16,9 @@ class ProductivityApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.grey[850],
       ),
       home: const ProductivityHomePage(),
+      routes: {
+        '/landing': (context) => const Landing(), // Define your Landing page route here
+      },
     );
   }
 }
@@ -113,6 +117,19 @@ class _ProductivityHomePageState extends State<ProductivityHomePage> {
       appBar: AppBar(
         title: Text('Productivity Tracker - Day $_currentDay', style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.grey[200]),
+              onPressed: () {
+                Navigator.of(context).pushNamed('/landing');
+              },
+              tooltip: 'Back',
+              iconSize: 30, // Make the icon bigger if needed
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
