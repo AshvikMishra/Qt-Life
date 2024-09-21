@@ -1,43 +1,45 @@
 import 'dart:io'; 
 import 'package:flutter/material.dart'; 
 import 'package:csv/csv.dart'; 
-import 'package:path_provider/path_provider.dart'; // Import path_provider
+import 'package:path_provider/path_provider.dart'; 
 import 'package:path/path.dart' as p;
 
 void main() {
-  runApp(CalendarApp());
+  runApp(ProductivityApp());
 }
 
-class CalendarApp extends StatelessWidget {
-  const CalendarApp({super.key});
+class ProductivityApp extends StatelessWidget {
+  const ProductivityApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Productivity Calendar',
+      title: 'Productivity Tracker',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.grey[850],
       ),
-      home: ProductivityScreen(),
+      home: ProductivityHomePage(),
     );
   }
 }
 
-class ProductivityScreen extends StatefulWidget {
-  const ProductivityScreen({super.key});
+class ProductivityHomePage extends StatefulWidget {
+  const ProductivityHomePage({super.key});
 
   @override
-  _ProductivityScreenState createState() => _ProductivityScreenState();
+  _ProductivityHomePageState createState() => _ProductivityHomePageState();
 }
 
-class _ProductivityScreenState extends State<ProductivityScreen> {
+class _ProductivityHomePageState extends State<ProductivityHomePage> {
+  int _currentDay = 1;
   final List<String> _timeSlots = ["0-4", "4-8", "8-12", "12-16", "16-20", "20-24"];
   final Map<String, TextEditingController> _controllers = {};
 
   @override
   void initState() {
     super.initState();
-    // Initialize controllers for each time slot
+    // Initialize text controllers for each time slot
     for (var slot in _timeSlots) {
       _controllers[slot] = TextEditingController();
     }
@@ -54,12 +56,12 @@ class _ProductivityScreenState extends State<ProductivityScreen> {
 
   Future<void> _saveToCSV() async {
     List<List<dynamic>> rows = [
-      ["Time Slot", "Productivity (1-10)"]
+      ["Day", "Time Slot", "Productivity (0-10)"]
     ];
 
-    // Prepare data rows
+    // Prepare data rows for the current day
     _controllers.forEach((slot, controller) {
-      rows.add([slot, controller.text]);
+      rows.add([_currentDay, slot, controller.text]);
     });
 
     // Convert rows to CSV
@@ -68,28 +70,35 @@ class _ProductivityScreenState extends State<ProductivityScreen> {
     // Get the platform-specific directory to save the file
     final Directory directory = await getApplicationDocumentsDirectory();
 
-    // Create a 'data' folder in the app's documents directory
-    final String dataFolderPath = p.join(directory.path, 'data');
-    final Directory dataDir = Directory(dataFolderPath);
-    if (!await dataDir.exists()) {
-      await dataDir.create();
-    }
-
-    // Save the CSV file in the 'data' folder
-    final String filePath = p.join(dataFolderPath, 'productivity_data.csv');
+    // Create or open the CSV file
+    final String filePath = p.join(directory.path, 'productivity_data.csv');
     final File file = File(filePath);
 
-    // Write to file
-    await file.writeAsString(csvData);
+    // Check if the file exists; if not, write the header and the first row
+    if (!await file.exists()) {
+      await file.writeAsString(csvData);
+    } else {
+      // Append new data without the header
+      String newData = const ListToCsvConverter().convert(rows.skip(1).toList());
+      await file.writeAsString(newData, mode: FileMode.append);
+    }
 
-    // Show confirmation in the app UI
+    // Show a confirmation message in the app
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Data saved to CSV at $filePath')),
+      SnackBar(content: Text('Day $_currentDay data uploaded to CSV')),
     );
 
-    // Show the CSV contents in the terminal
+    // Clear the text fields and increment the day
+    _controllers.forEach((slot, controller) {
+      controller.clear();
+    });
+    setState(() {
+      _currentDay++;
+    });
+
+    // Print the CSV file contents in the terminal for debugging purposes
     print('--- CSV File Contents ---');
-    print(csvData);  // Print the CSV content
+    print(await file.readAsString());
     print('-------------------------');
   }
 
@@ -97,7 +106,8 @@ class _ProductivityScreenState extends State<ProductivityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Productivity Tracker'),
+        title: Text('Productivity Tracker - Day $_currentDay', style: const TextStyle(color: Colors.white),),
+        backgroundColor: Colors.black,
       ),
       body: Column(
         children: [
@@ -107,7 +117,8 @@ class _ProductivityScreenState extends State<ProductivityScreen> {
               itemBuilder: (context, index) {
                 String timeSlot = _timeSlots[index];
                 return Card(
-                  margin: const EdgeInsets.all(10.0),
+                  color: Colors.grey[900],
+                  margin: const EdgeInsets.all(5.0),
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Column(
@@ -115,15 +126,23 @@ class _ProductivityScreenState extends State<ProductivityScreen> {
                       children: [
                         Text(
                           'Time Slot: $timeSlot',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 18, color: Colors.amber[200]),
                         ),
                         const SizedBox(height: 10),
                         TextField(
                           controller: _controllers[timeSlot],
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(color: Colors.white),
                           decoration: const InputDecoration(
-                            labelText: 'Productivity (1-10)',
+                            contentPadding: EdgeInsets.all(10),
+                            labelText: 'Productivity (0-10)', labelStyle: TextStyle(fontSize: 14, color: Colors.white,),
                             border: OutlineInputBorder(),
+                            enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey), // Set border color to white
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white), // Border color when focused
+                              ),
                           ),
                         ),
                       ],
@@ -133,9 +152,16 @@ class _ProductivityScreenState extends State<ProductivityScreen> {
               },
             ),
           ),
-          ElevatedButton(
-            onPressed: _saveToCSV,
-            child: const Text('Save to CSV'),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: ElevatedButton.icon(
+              onPressed: _saveToCSV,
+              label: Text("Upload", style: TextStyle(color: Colors.grey[400]),),
+              icon: Icon(Icons.upload, color: Colors.amber[200],),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey[900],
+              ),
+            ),
           ),
         ],
       ),
