@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
 import 'package:path/path.dart' as p;
 import 'package:productivity_app/pages/landing.dart';
+import 'package:productivity_app/pages/ml_ouput.dart';
 
 class ProductivityApp extends StatelessWidget {
   const ProductivityApp({super.key});
@@ -18,6 +19,7 @@ class ProductivityApp extends StatelessWidget {
       home: const ProductivityHomePage(),
       routes: {
         '/landing': (context) => const Landing(), // Define your Landing page route here
+        "/ml_output": (context) => const MLOutput(),
       },
     );
   }
@@ -158,13 +160,28 @@ class _ProductivityHomePageState extends State<ProductivityHomePage> {
           ),
           Padding(
             padding: const EdgeInsets.all(10.0),
-            child: ElevatedButton.icon(
-              onPressed: _saveToCSV,
-              label: Text("Upload", style: TextStyle(color: Colors.grey[400])),
-              icon: Icon(Icons.upload, color: Colors.amber[200]),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[900],
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _saveToCSV,
+                  label: Text("Upload", style: TextStyle(color: Colors.grey[400])),
+                  icon: Icon(Icons.upload, color: Colors.amber[200]),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[900],
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/ml_output');
+                  },
+                  label: Text("Prediction", style: TextStyle(color: Colors.grey[400])),
+                  icon: Icon(Icons.access_time, color: Colors.amber[200]),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[900],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
