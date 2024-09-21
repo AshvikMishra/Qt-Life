@@ -1,11 +1,10 @@
-import 'dart:io'; 
-import 'package:flutter/material.dart'; 
-import 'package:csv/csv.dart'; 
-import 'package:path_provider/path_provider.dart'; 
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:csv/csv.dart';
 import 'package:path/path.dart' as p;
 
 void main() {
-  runApp(ProductivityApp());
+  runApp(const ProductivityApp());
 }
 
 class ProductivityApp extends StatelessWidget {
@@ -19,7 +18,7 @@ class ProductivityApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.grey[850],
       ),
-      home: ProductivityHomePage(),
+      home: const ProductivityHomePage(),
     );
   }
 }
@@ -67,11 +66,8 @@ class _ProductivityHomePageState extends State<ProductivityHomePage> {
     // Convert rows to CSV
     String csvData = const ListToCsvConverter().convert(rows);
 
-    // Get the platform-specific directory to save the file
-    final Directory directory = await getApplicationDocumentsDirectory();
-
-    // Create or open the CSV file
-    final String filePath = p.join(directory.path, 'productivity_data.csv');
+    // Set the absolute path for saving the CSV file
+    final String filePath = p.join('C:\\Devjams24\\Vit-Life\\MLModels', 'productivity_data.csv');
     final File file = File(filePath);
 
     // Check if the file exists; if not, write the header and the first row
