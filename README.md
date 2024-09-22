@@ -1,5 +1,4 @@
 # Qt-Life
-GDSC DevJams24 Project from qt.py !!!
 
 A machine learning algorithm that uses reinforced learning to predict the user's productive hours accounting for biologically natural productive hours in accordance to our circadian rhythm.
 
