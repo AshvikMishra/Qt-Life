@@ -7,7 +7,6 @@ GDSC DevJams Project from qt.py !!!
 </p>
 
 ## The Pitch
-[Visit our pitch](https://www.canva.com/design/DAGRdCsp-Gw/Qh2OSSBYz-MrnldQOE2YxA/view)
 <img alt="Video Preview" src ="/videopreview.gif">
 
 ##  The Story
