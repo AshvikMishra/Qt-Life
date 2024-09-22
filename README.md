@@ -8,7 +8,7 @@ GDSC DevJams Project from qt.py !!!
 
 ## The Pitch
 [Visit our pitch](https://www.canva.com/design/DAGRdCsp-Gw/Qh2OSSBYz-MrnldQOE2YxA/view)
-![Preview](https://github.com/AshvikMishra/Vit-Life/blob/main/Supercharge%20your%20productivity.mp4)
+![Video Preview](https://github.com/AshvikMishra/Vit-Life/blob/main/Supercharge%20your%20productivity.mp4?raw=true)
 
 ##  The Story
 Have you ever made a timetable and could not really stick to it? Have you browsed the web for the most productive hours of the day and they did not work for you. Well you're in lucky, becuase this application can help you find those hours and supercharge your productivity!
