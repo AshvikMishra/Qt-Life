@@ -3,9 +3,7 @@ GDSC DevJams24 Project from qt.py !!!
 
 A machine learning algorithm that uses reinforced learning to predict the user's productive hours accounting for biologically natural productive hours in accordance to our circadian rhythm.
 
-Interface made using flutter.
-
-Algorithm made using tensorflow.
+Interface made using flutter and algorithm made using tensorflow.
 
 <p align="center">
   <a href="https://skillicons.dev">
