@@ -6,7 +6,8 @@ GDSC DevJams Project from qt.py !!!
   </a>
 </p>
 
-[View Design](https://www.canva.com/design/DAGRdCsp-Gw/Qh2OSSBYz-MrnldQOE2YxA/view)
+## The Pitch
+[Visit our pitch](https://www.canva.com/design/DAGRdCsp-Gw/Qh2OSSBYz-MrnldQOE2YxA/view)
 
 ##  The Story
 Have you ever made a timetable and could not really stick to it? Have you browsed the web for the most productive hours of the day and they did not work for you. Well you're in lucky, becuase this application can help you find those hours and supercharge your productivity!
